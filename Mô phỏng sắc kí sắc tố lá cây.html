@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mô phỏng sắc kí sắc tố lá cây</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap">
+<style>
+:root{--bg:#eef2ec;--card:#fbfcfa;--ink:#1d2b22;--mut:#56685c;--line:#cfd9cc;--acc:#2f6b3f;--accink:#fff;--glass:rgba(120,160,150,.18);--paper:#f6f2e4;--warn:#a4411f;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121a15;--card:#1a251e;--ink:#e6efe7;--mut:#9db3a2;--line:#2e4034;--acc:#6fbf82;--accink:#10200f;--glass:rgba(150,200,190,.14);--paper:#d9d4c0;--warn:#f0906a}}
+:root[data-theme="dark"]{--bg:#121a15;--card:#1a251e;--ink:#e6efe7;--mut:#9db3a2;--line:#2e4034;--acc:#6fbf82;--accink:#10200f;--glass:rgba(150,200,190,.14);--paper:#d9d4c0;--warn:#f0906a}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.55 "Be Vietnam Pro",system-ui,sans-serif}
+main{max-width:1060px;margin:0 auto;padding:24px 16px 40px}
+h1{font-size:clamp(1.5rem,4vw,2.1rem);line-height:1.2;margin:0 0 6px;font-weight:700}
+.lead{margin:0 0 20px;color:var(--mut);max-width:62ch}
+.grid{display:grid;grid-template-columns:minmax(260px,340px) 1fr;gap:18px;align-items:start}
+@media(max-width:760px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+.lab{display:flex;flex-direction:column;align-items:center;overflow:hidden}
+.stage{position:relative;width:300px;max-width:100%;height:470px}
+.jar{position:absolute;left:50%;margin-left:-100px;bottom:8px;width:200px;height:360px;border:3px solid var(--mut);border-top:none;border-radius:0 0 26px 26px;background:var(--glass);z-index:4;pointer-events:none}
+.jar:before{content:"";position:absolute;left:-9px;right:-9px;top:-3px;height:3px;background:var(--mut);border-radius:2px}
+.sol{position:absolute;left:0;right:0;bottom:0;height:20px;border-radius:0 0 22px 22px;background:rgba(120,190,200,.35);transition:height .4s,background .6s;z-index:3}
+.hang{position:absolute;left:50%;margin-left:-28px;bottom:8px;width:56px;height:300px;transition:transform 1.3s ease;z-index:2}
+.hang.up{transform:translateY(-110px)}
+.strip{position:absolute;inset:0;background:var(--paper);border:1px solid #bdb79f;overflow:visible;border-radius:2px;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.wet{position:absolute;left:0;right:0;bottom:0;height:0;background:rgba(80,120,130,.22);border-top:2px solid rgba(60,110,150,.55)}
+.line{position:absolute;left:0;right:0;bottom:40px;border-top:1px dashed #6b6a58}
+.spot{position:absolute;left:50%;bottom:40px;border-radius:50%;background:radial-gradient(#1e4a28,#2f6b3f 60%,transparent 72%);transform:translate(-50%,50%);opacity:0}
+.band{position:absolute;left:3px;right:3px;border-radius:50%;opacity:0;cursor:pointer;background:linear-gradient(transparent,var(--c) 38%,var(--c) 62%,transparent)}
+.band.sel{outline:2px solid var(--ink);outline-offset:1px}
+.tick{position:absolute;left:100%;margin-left:4px;white-space:nowrap;font-size:11px;font-weight:500;color:var(--ink);pointer-events:none;transform:translateY(50%)}
+.tick:before{content:"";display:inline-block;width:12px;border-top:1px solid var(--ink);vertical-align:middle;margin-right:3px}
+.ftick{color:#3a78b5}
+.ftick:before{border-top-style:dashed;border-color:#3a78b5}
+.clock{margin-top:6px;font-variant-numeric:tabular-nums;color:var(--mut);font-size:.9rem}
+.step{border-bottom:1px solid var(--line);padding:0 0 14px;margin-bottom:14px}
+.step:last-of-type{border:0;margin:0;padding:0}
+.step h2{font-size:1rem;margin:0 0 8px;font-weight:700}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+button,select{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:9px;padding:8px 12px;cursor:pointer}
+button.p{background:var(--acc);color:var(--accink);border-color:var(--acc);font-weight:500}
+button:disabled,select:disabled{opacity:.45;cursor:not-allowed}
+button[aria-pressed="true"]{border-color:var(--acc);box-shadow:inset 0 0 0 1px var(--acc)}
+:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+select{max-width:100%}
+.hint{color:var(--mut);font-size:.88rem;margin:6px 0 0}
+table{width:100%;border-collapse:collapse;font-size:.92rem}
+th,td{text-align:left;padding:7px 6px;border-bottom:1px solid var(--line)}
+th{font-weight:500;color:var(--mut)}
+td.n{font-variant-numeric:tabular-nums}
+tr.pr{cursor:pointer}
+tr.pr.sel{background:var(--glass)}
+.sw{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+.msg{min-height:3.2em;margin:12px 0 0}
+.msg.w{color:var(--warn)}
+.info{margin-top:12px;padding:10px 12px;border-left:3px solid var(--acc);background:var(--glass);border-radius:0 8px 8px 0;font-size:.92rem}
+.right{display:grid;gap:18px}
+</style>
+</head>
+<body>
+<main>
+<h1>Mô phỏng sắc kí sắc tố lá cây</h1>
+<p class="lead">Chấm dịch chiết lá lên giấy lọc, nhúng vào dung môi và quan sát các sắc tố tách thành những vệt màu riêng. Thử đổi dung môi hoặc mực dung môi để xem kết quả thay đổi.</p>
+<div class="grid">
+ <section class="card lab" aria-label="Dụng cụ thí nghiệm">
+  <div class="stage" id="stage">
+   <div class="hang up" id="hang"><div class="strip" id="strip">
+     <div class="wet" id="wet"></div><div class="line"></div><div class="spot" id="spot"></div>
+   </div></div>
+   <div class="jar"><div class="sol" id="sol"></div></div>
+  </div>
+  <div class="clock" id="clock" aria-live="off">Thời gian: 00:00</div>
+ </section>
+ <div class="right">
+  <section class="card" aria-label="Bảng điều khiển">
+   <div class="step"><h2>1. Chấm dịch chiết lên vạch xuất phát</h2>
+    <div class="row"><button class="p" id="dot">Chấm 1 giọt</button><span id="cnt">Đã chấm: 0 giọt</span></div>
+    <p class="hint">Chấm nhiều lần để vệt đậm hơn, nhưng vệt sẽ rộng hơn và kém sắc nét.</p></div>
+   <div class="step"><h2>2. Chọn dung môi</h2>
+    <select id="solvent" aria-label="Dung môi">
+     <option value="eth">Ete dầu hỏa : axeton (9 : 1)</option>
+     <option value="etoh">Etanol 96%</option>
+     <option value="h2o">Nước cất</option>
+    </select></div>
+   <div class="step"><h2>3. Chọn mực dung môi</h2>
+    <select id="level" aria-label="Mực dung môi">
+     <option value="ok">Thấp hơn vạch xuất phát (đúng)</option>
+     <option value="high">Cao hơn vạch xuất phát (sai)</option>
+    </select></div>
+   <div class="step"><h2>4. Tiến hành</h2>
+    <div class="row">
+     <button class="p" id="go">Nhúng giấy vào dung môi</button>
+     <button id="pause" disabled>Tạm dừng</button>
+     <button id="reset">Làm lại</button>
+    </div>
+    <div class="row" style="margin-top:8px"><span>Tốc độ:</span>
+     <button data-sp="1" aria-pressed="true">×1</button><button data-sp="3" aria-pressed="false">×3</button><button data-sp="8" aria-pressed="false">×8</button>
+     <button id="meas" aria-pressed="false">Đo khoảng cách</button></div>
+    <p class="msg" id="msg" aria-live="polite">Hãy chấm ít nhất một giọt dịch chiết rồi nhúng giấy vào dung môi.</p>
+   </div>
+  </section>
+  <section class="card" aria-label="Kết quả">
+   <table><thead><tr><th>Sắc tố</th><th>Quãng đường (cm)</th><th>Rf</th></tr></thead><tbody id="tb"></tbody></table>
+   <p class="hint">Rf = quãng đường sắc tố đi được ÷ quãng đường dung môi đi được, tính từ vạch xuất phát. Bấm vào một vệt màu hoặc một hàng để xem thông tin.</p>
+   <div class="info" id="info">Chưa chọn sắc tố nào.</div>
+  </section>
+ </div>
+</div>
+</main>
+<script>
+(function(){
+var PX=20, START=2, FMAX=11;
+var PIG=[
+ {id:'car',name:'Caroten',col:'#f0a21d',str:.5,txt:'Màu vàng cam, hầu như không phân cực nên đi theo dung môi xa nhất. Hấp thụ ánh sáng xanh tím và bảo vệ chất diệp lục khỏi ánh sáng quá mạnh.'},
+ {id:'xan',name:'Xantophyl',col:'#e6cf2a',str:.55,txt:'Màu vàng, phân cực hơn caroten nên đi chậm hơn. Cũng là sắc tố phụ, mở rộng vùng ánh sáng cây hấp thụ được.'},
+ {id:'cha',name:'Diệp lục a',col:'#1f8f6a',str:1,txt:'Màu xanh lam lục, là sắc tố chính của quang hợp. Có nhiều nhất trong lá nên vệt thường đậm và rộng nhất.'},
+ {id:'chb',name:'Diệp lục b',col:'#7fae2f',str:.7,txt:'Màu xanh vàng lục, phân cực nhất trong bốn sắc tố nên đi chậm nhất. Là sắc tố phụ, chuyển năng lượng ánh sáng cho diệp lục a.'}
+];
+var SOL={
+ eth:{k:1.6,rf:{car:.95,xan:.71,cha:.62,chb:.45},note:'Ete dầu hỏa kém phân cực kéo các sắc tố lên theo độ phân cực của chúng, nên bốn vệt tách rõ.'},
+ etoh:{k:1.1,rf:{car:.99,xan:.95,cha:.91,chb:.88},note:'Etanol phân cực mạnh hòa tan mọi sắc tố, nên tất cả chạy sát mép dung môi và các vệt gần như chồng lên nhau.'},
+ h2o:{k:.8,rf:{car:.02,xan:.02,cha:.02,chb:.02},note:'Các sắc tố của lá không tan trong nước nên gần như đứng yên ở vạch xuất phát, chỉ có nước thấm lên giấy.'}
+};
+var $=function(i){return document.getElementById(i)};
+var strip=$('strip'),hang=$('hang'),wet=$('wet'),spot=$('spot'),sol=$('sol'),tb=$('tb'),msg=$('msg');
+var S={n:0,run:false,paused:false,done:false,t:0,F:0,sp:1,meas:false,sel:null,last:0};
+var bands={},rows={},ticks={};
+
+PIG.forEach(function(p){
+ var b=document.createElement('div');b.className='band';b.style.setProperty('--c',p.col);b.title=p.name;b.tabIndex=0;
+ b.setAttribute('role','button');b.setAttribute('aria-label',p.name);
+ b.onclick=function(){select(p.id)};b.onkeydown=function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();select(p.id)}};
+ strip.appendChild(b);bands[p.id]=b;
+ var t=document.createElement('div');t.className='tick';t.style.display='none';strip.appendChild(t);ticks[p.id]=t;
+ var r=document.createElement('tr');r.className='pr';r.tabIndex=0;
+ r.innerHTML='<td><span class="sw" style="background:'+p.col+'"></span>'+p.name+'</td><td class="n">–</td><td class="n">–</td>';
+ r.onclick=function(){select(p.id)};r.onkeydown=function(e){if(e.key==='Enter'){select(p.id)}};
+ tb.appendChild(r);rows[p.id]=r;
+});
+var ft=document.createElement('div');ft.className='tick ftick';ft.style.display='none';strip.appendChild(ft);
+
+function select(id){
+ S.sel=id;
+ PIG.forEach(function(p){bands[p.id].classList.toggle('sel',p.id===id);rows[p.id].classList.toggle('sel',p.id===id)});
+ var p=PIG.filter(function(x){return x.id===id})[0];
+ $('info').innerHTML='<b>'+p.name+'.</b> '+p.txt;
+}
+function setMsg(t,w){msg.textContent=t;msg.className='msg'+(w?' w':'')}
+function fmt(t){var m=Math.floor(t/60),s=Math.floor(t%60);return (m<10?'0':'')+m+':'+(s<10?'0':'')+s}
+function lvl(){return $('level').value}
+function cfg(){return SOL[$('solvent').value]}
+
+function render(){
+ var c=cfg(),high=S.run&&lvl()==='high',F=S.F;
+ $('clock').textContent='Thời gian: '+fmt(S.t);
+ wet.style.height=(S.run?(high?40:0)+(START*PX)*(high?0:1)+F*PX+(high?0:0):0)+'px';
+ if(S.run&&!high)wet.style.height=(START*PX+F*PX)+'px';
+ var load=Math.min(1,.25+S.n*.09),w0=4+S.n*1.1;
+ var sz=8+S.n*1.6;
+ spot.style.width=spot.style.height=sz+'px';
+ var so=S.n?1:0;
+ if(S.run){so=high?Math.max(0,1-S.t/10):Math.max(.12,1-F/5)}
+ spot.style.opacity=so;
+ var cm=[];
+ PIG.forEach(function(p){
+  var b=bands[p.id],rf=c.rf[p.id],d=rf*F;
+  var show=S.run&&!high&&F>.4;
+  var h=w0+F*.9+(1-rf)*F*.25;
+  b.style.height=h+'px';
+  b.style.bottom=(START*PX+d*PX-h/2)+'px';
+  b.style.opacity=show?Math.min(1,p.str*load*1.4*Math.min(1,F/2.5)):0;
+  b.style.pointerEvents=show&&F>2?'auto':'none';
+  var ok=show&&F>.4;
+  rows[p.id].children[1].textContent=ok?d.toFixed(1):'–';
+  rows[p.id].children[2].textContent=ok?rf.toFixed(2):'–';
+  var t=ticks[p.id];
+  t.style.display=(S.meas&&ok)?'block':'none';
+  t.style.bottom=(START*PX+d*PX)+'px';
+  t.textContent=(d.toFixed(1)+' cm');
+  t.insertAdjacentHTML('afterbegin','');
+ });
+ ft.style.display=(S.meas&&S.run&&!high)?'block':'none';
+ ft.style.bottom=(START*PX+F*PX)+'px';
+ ft.textContent='Mép dung môi '+F.toFixed(1)+' cm';
+ if(high){sol.style.background='rgba(70,140,70,'+Math.min(.65,.35+S.t/25)+')'}
+}
+
+function loop(ts){
+ if(!S.last)S.last=ts;
+ var dt=Math.min(.1,(ts-S.last)/1000);S.last=ts;
+ if(S.run&&!S.paused&&!S.done&&S.dipped){
+  S.t+=dt*S.sp;
+  var k=cfg().k;
+  S.F=Math.min(FMAX,k*Math.sqrt(S.t));
+  if(S.F>=FMAX){S.done=true;finish()}
+  render();
+ }
+ requestAnimationFrame(loop);
+}
+function finish(){
+ $('pause').disabled=true;
+ if(lvl()==='high'){setMsg('Dung môi ngập quá vạch xuất phát nên sắc tố hòa vào dung môi thay vì tách thành vệt. Hãy làm lại với mực dung môi thấp hơn vạch.',true);return}
+ setMsg('Hoàn tất. '+cfg().note+' Bấm "Đo khoảng cách" để đọc kết quả.');
+}
+
+$('dot').onclick=function(){
+ if(S.run)return;
+ if(S.n<10)S.n++;
+ $('cnt').textContent='Đã chấm: '+S.n+' giọt';
+ if(S.n>=10){$('dot').disabled=true;setMsg('Đã đủ 10 giọt. Hãy nhúng giấy vào dung môi.')}
+ else setMsg('Tiếp tục chấm hoặc nhúng giấy vào dung môi.');
+ render();
+};
+$('go').onclick=function(){
+ if(S.run)return;
+ if(!S.n){setMsg('Chưa có dịch chiết trên giấy. Hãy chấm ít nhất một giọt.',true);return}
+ S.run=true;S.dipped=false;
+ ['dot','go','solvent','level'].forEach(function(i){$(i).disabled=true});
+ $('pause').disabled=false;
+ sol.style.height=(lvl()==='high'?60:20)+'px';
+ sol.style.background='rgba(120,190,200,.35)';
+ hang.classList.remove('up');
+ setMsg('Đang nhúng giấy... Dung môi dâng lên giấy nhờ hiện tượng mao dẫn.');
+ setTimeout(function(){S.dipped=true;setMsg(lvl()==='high'?'Dung môi chạm vào giọt dịch chiết, sắc tố bắt đầu tan ra ngoài.':'Dung môi đang dâng lên. Các sắc tố di chuyển với tốc độ khác nhau.')},1300);
+};
+$('pause').onclick=function(){S.paused=!S.paused;this.textContent=S.paused?'Tiếp tục':'Tạm dừng'};
+$('reset').onclick=function(){
+ S={n:0,run:false,paused:false,done:false,t:0,F:0,sp:S.sp,meas:S.meas,sel:null,last:0,dipped:false};
+ hang.classList.add('up');sol.style.height='20px';sol.style.background='rgba(120,190,200,.35)';
+ ['dot','go','solvent','level'].forEach(function(i){$(i).disabled=false});
+ $('pause').disabled=true;$('pause').textContent='Tạm dừng';$('cnt').textContent='Đã chấm: 0 giọt';
+ $('info').textContent='Chưa chọn sắc tố nào.';
+ PIG.forEach(function(p){bands[p.id].classList.remove('sel');rows[p.id].classList.remove('sel')});
+ setMsg('Hãy chấm ít nhất một giọt dịch chiết rồi nhúng giấy vào dung môi.');
+ render();
+};
+document.querySelectorAll('[data-sp]').forEach(function(b){
+ b.onclick=function(){S.sp=+b.dataset.sp;document.querySelectorAll('[data-sp]').forEach(function(x){x.setAttribute('aria-pressed',x===b)})}
+});
+$('meas').onclick=function(){S.meas=!S.meas;this.setAttribute('aria-pressed',S.meas);render()};
+S.dipped=false;
+render();requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
